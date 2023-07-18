@@ -1,0 +1,6 @@
+  {"name": "ali","className": "A","note": 90}
+  {"name": "ahmet","className": "A","note": 40}
+  {"name": "mehmet","className": "B","note": 20}
+  {"name": "veli","className": "B","note": 10}
+  {"name": "beyza","className": "C","note": 100}
+  {"name": "ugur","className": "C","note": 30}
