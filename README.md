@@ -23,7 +23,7 @@ Make sure that Kafka is running using Docker. You can start Kafka using Docker C
 docker-compose up
 ```
 
-## Contributing
+### Contributing
 If you'd like to contribute to this project, you can follow these steps:
 
 1. Fork this repository.
