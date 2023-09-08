@@ -5,12 +5,12 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessin
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.util.Collector;
 
-import java.io.File;
 
 public class StudentDeserializer implements FlatMapFunction<String, Student> {
 
 
     ObjectMapper objectMapper;
+
     @Override
     public void flatMap(String value, Collector<Student> out) {
         if (objectMapper == null) {

@@ -19,49 +19,49 @@
 package calculateavarage;
 
 public class Student {
-	private String name;
-	private String className;
-	private int note;
+    private String name;
+    private String className;
+    private int note;
 
-	public Student(String name, String className, int note) {
-		this.name = name;
-		this.className = className;
-		this.note = note;
-	}
+    public Student(String name, String className, int note) {
+        this.name = name;
+        this.className = className;
+        this.note = note;
+    }
 
-	public Student() {
-	}
+    public Student() {
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getClassName() {
-		return className;
-	}
+    public String getClassName() {
+        return className;
+    }
 
-	public int getNote() {
-		return note;
-	}
+    public int getNote() {
+        return note;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setClassName(String className) {
-		this.className = className;
-	}
+    public void setClassName(String className) {
+        this.className = className;
+    }
 
-	public void setNote(int note) {
-		this.note = note;
-	}
+    public void setNote(int note) {
+        this.note = note;
+    }
 
-	@Override
-	public String toString() {
-		return "Student{" +
-				"name='" + name + '\'' +
-				", className='" + className + '\'' +
-				", note=" + note +
-				'}';
-	}
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", className='" + className + '\'' +
+                ", note=" + note +
+                '}';
+    }
 }

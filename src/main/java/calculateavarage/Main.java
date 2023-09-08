@@ -30,70 +30,56 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 
-
-
 import java.time.Instant;
 import java.util.Properties;
 
 public class Main {
-	public static void main(String[] args) throws Exception {
-		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+    public static void main(String[] args) throws Exception {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-		// Set up Kafka consumer properties
-		Properties consumerProps = new Properties();
-		consumerProps.setProperty("bootstrap.servers", "localhost:29092");
-		consumerProps.setProperty("group.id", "flink-consumer");
+        Properties consumerProps = new Properties();
+        consumerProps.setProperty("bootstrap.servers", "localhost:29092");
+        consumerProps.setProperty("group.id", "flink-consumer");
 
-		// Set up Kafka producer properties
-		Properties producerProps = new Properties();
-		producerProps.setProperty("bootstrap.servers", "localhost:29092");
+        Properties producerProps = new Properties();
+        producerProps.setProperty("bootstrap.servers", "localhost:29092");
 
-		System.out.println("set properties");
+        System.out.println("set properties");
 
-		// Create the Kafka consumer
-		FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>(
-				"students.note",
-				new SimpleStringSchema(),
-				consumerProps
-		);
+        FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>(
+                "students.note",
+                new SimpleStringSchema(),
+                consumerProps
+        );
 
-
-		// Create the Kafka producer
-		FlinkKafkaProducer<String> producer = new FlinkKafkaProducer<>(
-				"note.averages",
-				new SimpleStringSchema(),
-				producerProps
-		);
+        FlinkKafkaProducer<String> producer = new FlinkKafkaProducer<>(
+                "note.averages",
+                new SimpleStringSchema(),
+                producerProps
+        );
 
 
-		System.out.println("set producer and consumer");
+        System.out.println("set producer and consumer");
 
-		// Configure the consumer and producer
-		// kafkaConsumer.setStartFromEarliest();
-		producer.setWriteTimestampToKafka(true);
+        producer.setWriteTimestampToKafka(true);
 
 
+        DataStream<String> inputStringStream = env.addSource(kafkaConsumer);
+        inputStringStream.print();
 
-		// Add the Kafka consumer as a data source
-		DataStream<String> inputStringStream = env.addSource(kafkaConsumer);
-		inputStringStream.print();
+        DataStream<Student> inputStudentStream = inputStringStream.flatMap(new StudentDeserializer())
+                .assignTimestampsAndWatermarks(WatermarkStrategy.<Student>forMonotonousTimestamps()
+                        .withTimestampAssigner(
+                                (event, timestamp) -> Instant.now().toEpochMilli()));
+        inputStudentStream.print();
+        KeyedStream<Student, String> studentKeyedStream = inputStudentStream.keyBy(student -> student.getClassName());
+        WindowedStream<Student, String, TimeWindow> studentKeyedWindowedStream = studentKeyedStream.window(TumblingProcessingTimeWindows.of(Time.minutes(1)));
+        DataStream<ClassDegree> calculatedAverages = studentKeyedWindowedStream.process(new ClassDegreeCalculator());
+        DataStream<String> calculatedAveragesString = calculatedAverages.flatMap(new ClassDegreeSerializer());
+        calculatedAveragesString.print();
+        calculatedAveragesString.addSink((producer));
 
-		DataStream<Student> inputStudentStream = inputStringStream.flatMap(new StudentDeserializer())
-				.assignTimestampsAndWatermarks(WatermarkStrategy.<Student>forMonotonousTimestamps()
-						.withTimestampAssigner(
-								(event, timestamp) -> Instant.now().toEpochMilli()));
-		inputStudentStream.print();
-		//inputStudentStream.keyBy(Student::getClassName);
-		KeyedStream<Student, String> studentKeyedStream = inputStudentStream.keyBy(student -> student.getClassName());
-		WindowedStream<Student,String, TimeWindow> studentKeyedWindowedStream = studentKeyedStream.window(TumblingProcessingTimeWindows.of(Time.minutes(1)));
-		DataStream<ClassDegree> calculatedAverages= studentKeyedWindowedStream.process(new ClassDegreeCalculator());
-		DataStream<String> calculatedAveragesString = calculatedAverages.flatMap(new ClassDegreeSerializer());
-		calculatedAveragesString.print();
-		calculatedAveragesString.addSink((producer));
-
-
-		// Execute the Flink job
-		env.execute("CalculateAverageJob");
-	}
+        env.execute("CalculateAverageJob");
+    }
 
 }
