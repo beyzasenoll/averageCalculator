@@ -12,10 +12,10 @@ This project includes a sample application that calculates student GPA using Apa
 ### Running the Application
 
 To run the project on your local machine, follow the steps below:
-- git clone https://github.com/yourusername/yourproject.git
-- cd yourproject
+- git clone https://github.com/beyzasenoll/averageCalculator.git
+- cd averageCalculator
 - mvn clean install
-- java -jar target/yourproject.jar
+- java -jar target/averageCalculator.jar
 
 Make sure that Kafka is running using Docker. You can start Kafka using Docker Compose with the following command:
 
